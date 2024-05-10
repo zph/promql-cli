@@ -5,43 +5,43 @@
 class PromqlCli < Formula
   desc "Promql commandline client for CLI Grafana"
   homepage "https://github.com/zph/promql-cli"
-  version "0.3.1"
+  version "0.3.2"
   license "Apache-2.0"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/zph/promql-cli/releases/download/v0.3.1/promql-cli_darwin_x86_64.tar.gz"
-      sha256 "91a64a350ed2d9384e29c869ec477bba9a63fdb41d56bb9cc7cfa563dfa50908"
+      url "https://github.com/zph/promql-cli/releases/download/v0.3.2/promql-cli_darwin_x86_64.tar.gz"
+      sha256 "299c058787699a91ce122954517b570021f03d572f9b7a7b57fbd1a4de8f91ec"
 
       def install
-        bin.install "promql-cli"
+        bin.install "promql"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/zph/promql-cli/releases/download/v0.3.1/promql-cli_darwin_arm64.tar.gz"
-      sha256 "56e058db64a2493e518acb13d429d43e53c621364e6aba9fad0e5450d3bf2391"
+      url "https://github.com/zph/promql-cli/releases/download/v0.3.2/promql-cli_darwin_arm64.tar.gz"
+      sha256 "81ce5c9d5d1e9e2b2345463ec0fdac0507a8970b3c048c810d9521836e99a32a"
 
       def install
-        bin.install "promql-cli"
+        bin.install "promql"
       end
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/zph/promql-cli/releases/download/v0.3.1/promql-cli_linux_x86_64.tar.gz"
-      sha256 "947b74c47a228b8cf91e26f2c28e5af645f949545f7d88f73c4825dafed1b29e"
+      url "https://github.com/zph/promql-cli/releases/download/v0.3.2/promql-cli_linux_x86_64.tar.gz"
+      sha256 "445dc249016eb8e8b874e9ec136f9fdc54cea5d5a9854070a72a15bf0f406479"
 
       def install
-        bin.install "promql-cli"
+        bin.install "promql"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/zph/promql-cli/releases/download/v0.3.1/promql-cli_linux_arm64.tar.gz"
-      sha256 "288c2a7ed0af86d5e8805442a38ac25da9508e664c71bc26ed04cfb52b915ac9"
+      url "https://github.com/zph/promql-cli/releases/download/v0.3.2/promql-cli_linux_arm64.tar.gz"
+      sha256 "89025fcc50cd9830e2f121e4f18ebb7494d3d61216701ac58c8f3607c6c324d0"
 
       def install
-        bin.install "promql-cli"
+        bin.install "promql"
       end
     end
   end
