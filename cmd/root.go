@@ -167,6 +167,11 @@ func init() {
 	if err := viper.BindPFlag("auth-credentials-file", rootCmd.PersistentFlags().Lookup("auth-credentials-file")); err != nil {
 		errlog.Fatalln(err)
 	}
+	rootCmd.PersistentFlags().StringArrayP("header", "H", []string{}, "Header(s) for http requests to prometheus")
+	if err := viper.BindPFlag("header", rootCmd.PersistentFlags().Lookup("header")); err != nil {
+		errlog.Fatalln(err)
+	}
+
 	rootCmd.PersistentFlags().String("tls_config.ca_cert_file", "", "CA cert Path for TLS config")
 	if err := viper.BindPFlag("tls_config.ca_cert_file", rootCmd.PersistentFlags().Lookup("tls_config.ca_cert_file")); err != nil {
 		errlog.Fatalln(err)

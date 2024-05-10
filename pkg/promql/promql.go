@@ -22,26 +22,48 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/config"
 	"github.com/prometheus/common/model"
+	"github.com/spf13/viper"
 ) // Client is our prometheus v1 API interface
 type Client interface {
 	v1.API
 }
 
-// CreateClient creates a Client interface for the provided hostname
-func CreateClient(host string) (v1.API, error) {
-	a, err := api.NewClient(api.Config{
-		Address: host,
-	})
-	if err != nil {
-		return nil, err
+type HeadersRoundTripper struct {
+	headers http.Header
+	rt      http.RoundTripper
+}
+
+// cloneRequest returns a clone of the provided *http.Request.
+// The clone is a shallow copy of the struct and its Header map.
+// cloneRequest copied from: https://github.com/prometheus/common/blob/v0.53.0/config/http_config.go#L829C1-L841C2
+// under rights of http://www.apache.org/licenses/LICENSE-2.0
+func cloneRequest(r *http.Request) *http.Request {
+	// Shallow copy of the struct.
+	r2 := new(http.Request)
+	*r2 = *r
+	// Deep copy of the Header.
+	r2.Header = make(http.Header)
+	for k, s := range r.Header {
+		r2.Header[k] = s
 	}
-	return v1.NewAPI(a), nil
+	return r2
+}
+
+func (rt *HeadersRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = cloneRequest(req)
+	for k, v := range rt.headers {
+		for _, val := range v {
+			req.Header.Add(k, val)
+		}
+	}
+	return rt.rt.RoundTrip(req)
 }
 
 // CreateClientWithAuth creates a Client interface witht the provided hostname and auth config
@@ -61,6 +83,39 @@ func CreateClientWithAuth(host string, authCfg config.Authorization, tlsCfg conf
 		}).DialContext,
 		TLSHandshakeTimeout: 10 * time.Second,
 		TLSClientConfig:     tc,
+	}
+
+	if viper.GetStringSlice("header") != nil {
+		headers := http.Header{}
+		for _, header := range viper.GetStringSlice("header") {
+			parts := strings.SplitN(header, ":", 2)
+			if len(parts) != 2 {
+				return nil, fmt.Errorf("invalid header format: %s", header)
+			}
+			headers.Add(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
+		}
+
+		rt = &HeadersRoundTripper{
+			headers: headers,
+			rt:      rt,
+		}
+	}
+
+	if viper.GetStringSlice("header") != nil {
+		headers := http.Header{}
+		// Use header syntax from curl where key:value is passed as a string
+		for _, header := range viper.GetStringSlice("header") {
+			parts := strings.SplitN(header, ":", 2)
+			if len(parts) != 2 {
+				return nil, fmt.Errorf("invalid header format: %s", header)
+			}
+			headers.Add(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
+		}
+
+		rt = &HeadersRoundTripper{
+			headers: headers,
+			rt:      rt,
+		}
 	}
 
 	if authCfg != (config.Authorization{}) {
